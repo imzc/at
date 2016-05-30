@@ -1,0 +1,7 @@
+bin-debug
+resource/assets
+resource/eui_skins
+libs/modules
+libs/exml.e.d.ts
+wingProperties.json
+template/runtime
