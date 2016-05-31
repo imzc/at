@@ -5,7 +5,7 @@
    "tasks": [
       {
          "taskName": "build",
-         "showOutput": "silent",
+         "showOutput": "always",
          "args": [
             "build",
             "-sourcemap"
@@ -14,10 +14,18 @@
       },
       {
          "taskName": "clean",
-         "showOutput": "silent",
+         "showOutput": "always",
          "args": [
             "build",
             "-e"
+         ],
+         "problemMatcher": "$tsc"
+      },
+      {
+         "taskName": "publish",
+         "showOutput": "always",
+         "args": [
+            "publish"
          ],
          "problemMatcher": "$tsc"
       }
