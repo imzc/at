@@ -1,11 +1,7 @@
 module demo {
     
+    @at.skin("resource/eui_skins/DemoSkin.exml")
     export class Component extends eui.Component {
-        
-        constructor(){
-            super();
-            this.skinName = "resource/eui_skins/DemoSkin.exml";
-        }
         
         @at.partEvent(egret.TouchEvent.TOUCH_TAP,Component.prototype.onTouchTap)
         @at.partEvent(egret.TouchEvent.TOUCH_END,Component.prototype.onTouchEnd)

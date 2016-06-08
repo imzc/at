@@ -1,5 +1,5 @@
 namespace at {
-    export interface IResConfig {
+    export interface IResOption {
         url: string;
         root: string;
         preload: string;
@@ -8,11 +8,11 @@ namespace at {
         onPreloadComplete?: (e: RES.ResourceEvent) => void;
         onItemLoadError?: (e: RES.ResourceEvent) => void;
     }
-    export function res(options:IResConfig) {
-        return function (target: { new (...args): egret.DisplayObject }):any {
+    export function res(options: IResOption) {
+        return function (target: { new (...args): egret.DisplayObject }): any {
             var newFunc = function (...args) {
                 var instance = new target(...args);
-                var helper = new ResHelper(instance,options);
+                var helper = new ResHelper(instance, options);
                 return instance;
             }
             return newFunc;
@@ -20,7 +20,7 @@ namespace at {
     }
 
     class ResHelper {
-        constructor(private target: egret.DisplayObject, private options: IResConfig) {
+        constructor(private target: egret.DisplayObject, private options: IResOption) {
             target.once(egret.Event.ADDED_TO_STAGE, () => {
                 RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
                 RES.loadConfig(options.url, options.root);

@@ -1,5 +1,56 @@
 namespace at {
 
+    export interface IEUIOption {
+        theme?:string;
+        themeAdapter?:{ new():eui.IThemeAdapter };
+        assetAdapter?:{ new():eui.IAssetAdapter };
+        onComplete?:()=>void;
+        
+    }
+
+    export function ui(options:IEUIOption){
+        return function (target: { new (...args): egret.DisplayObject }): any {
+            var newFunc = function (...args) {
+                var instance = new target(...args);
+                var helper = new ThemeHelper(instance, options);
+                return instance;
+            }
+            return newFunc;
+        }
+    }
+    
+    class ThemeHelper {
+        constructor(private target: egret.DisplayObject, private options: IEUIOption) {
+            target.once(egret.Event.ADDED_TO_STAGE, () => {
+                if(options.assetAdapter){
+                    var assetAdapter = new options.assetAdapter();
+                    target.stage.registerImplementation("eui.IAssetAdapter",assetAdapter);
+                }
+                if(options.themeAdapter){
+                    var themeAdapter = new options.themeAdapter();
+                    target.stage.registerImplementation("eui.IThemeAdapter",themeAdapter);
+                }
+                if(options.theme){
+                    var theme = new eui.Theme(options.theme,target.stage);
+                    if(options.onComplete){
+                        theme.addEventListener(egret.Event.COMPLETE,options.onComplete,target);
+                    }
+                }
+            }, target);
+        }
+    }
+    
+    export function skin(skinName:string) {
+        return function (target: { new (...args): eui.Component }): any {
+            var newFunc = function (...args) {
+                var instance = new target(...args);
+                instance.skinName = skinName;
+                return instance;
+            }
+            return newFunc;
+        }
+    }
+
     export interface EuiPendings {
         skinPartAttrs?: { [name: string]: EuiSkinPartAttrs };
         partAddedReplaced?:boolean;
@@ -85,5 +136,4 @@ namespace at {
         }
         return pending.skinPartAttrs[name];
     }
-
 }
