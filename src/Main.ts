@@ -27,18 +27,18 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-@at.res({
-    url:"resource/default.res.json",
-    root:"resource/",
-    preload:"preload",
-    onPreloadComplete:Main.prototype.onResLoadComplete,
-    onProgress:Main.prototype.onResProgress
+@at.res<Main>({
+    url: "resource/default.res.json",
+    root: "resource/",
+    preload: "preload",
+    onPreloadComplete: it => it.onResLoadComplete,
+    onProgress: it => it.onResProgress
 })
-@at.ui({
-    theme:"resource/default.thm.json",
-    onComplete:Main.prototype.onThemeLoadComplete,
-    assetAdapter:AssetAdapter,
-    themeAdapter:ThemeAdapter
+@at.ui<Main>({
+    theme: "resource/default.thm.json",
+    onComplete: it=>it.onThemeLoadComplete,
+    assetAdapter: AssetAdapter,
+    themeAdapter: ThemeAdapter
 })
 class Main extends eui.UILayer {
     /**
@@ -53,7 +53,7 @@ class Main extends eui.UILayer {
     }
     private isThemeLoadEnd: boolean = false;
     private isResourceLoadEnd: boolean = false;
-    
+
     private onThemeLoadComplete(): void {
         this.isThemeLoadEnd = true;
         this.createScene();
@@ -63,16 +63,18 @@ class Main extends eui.UILayer {
         this.stage.removeChild(this.loadingView);
         this.createScene();
     }
-    private onResProgress(loaded:number,total:number){
-        this.loadingView.setProgress(loaded,total);
+    private onResProgress(loaded: number, total: number) {
+        this.loadingView.setProgress(loaded, total);
     }
-    private createScene(){
-        if(!this.isThemeLoadEnd || !this.isResourceLoadEnd){
+    private createScene() {
+        if (!this.isThemeLoadEnd || !this.isResourceLoadEnd) {
             return;
         }
-        
-        var instance = new demo.Component();
+
+        var instance = new demo.NewComp();
         this.addChild(instance);
+        demo.MyComponent.Abc = 5788;
+        console.log(demo.MyComponent.Abc);
     }
 }
 

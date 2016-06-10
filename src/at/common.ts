@@ -1,6 +1,24 @@
 namespace at {
 
+    export function $extends(_override, base) {
+        for (var p in base)
+            if (base.hasOwnProperty(p))
+                _override[p] = base[p];
+        function __() {
+            this.constructor = _override;
+        }
+        __.prototype = base.prototype;
+        _override.prototype = new __();
+    }
 
+    export function $appendToClass<T>(base: { new (...args): T },callback: (instance: T) => void) {
+        var newFunc = function (...args) {
+            base.apply(this, args);
+            callback.call(this,this);
+        }
+        $extends(newFunc, base);
+        return newFunc;
+    }
 
     export interface IEventHandlers {
         name: string;

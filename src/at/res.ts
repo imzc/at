@@ -1,26 +1,21 @@
 namespace at {
-    export interface IResOption {
+    export interface IResOption<T> {
         url: string;
         root: string;
         preload: string;
-        onProgress?: (loaded: number, total: number) => void;
-        onPreloadFaild?: (e: RES.ResourceEvent) => void;
-        onPreloadComplete?: (e: RES.ResourceEvent) => void;
-        onItemLoadError?: (e: RES.ResourceEvent) => void;
+        onProgress?: (it:T)=> (loaded: number, total: number) => void;
+        onPreloadFaild?:  (it:T)=>(e: RES.ResourceEvent) => void;
+        onPreloadComplete?:  (it:T)=>(e: RES.ResourceEvent) => void;
+        onItemLoadError?:  (it:T)=>(e: RES.ResourceEvent) => void;
     }
-    export function res(options: IResOption) {
+    export function res<T>(options: IResOption<T>) {
         return function (target: { new (...args): egret.DisplayObject }): any {
-            var newFunc = function (...args) {
-                var instance = new target(...args);
-                var helper = new ResHelper(instance, options);
-                return instance;
-            }
-            return newFunc;
+            return $appendToClass(target,it=>new ResHelper(it,options));
         }
     }
 
-    class ResHelper {
-        constructor(private target: egret.DisplayObject, private options: IResOption) {
+    class ResHelper<T> {
+        constructor(private target: egret.DisplayObject, private options: IResOption<T>) {
             target.once(egret.Event.ADDED_TO_STAGE, () => {
                 RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
                 RES.loadConfig(options.url, options.root);
@@ -53,7 +48,7 @@ namespace at {
                 RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
 
                 if (options.onPreloadComplete) {
-                    options.onPreloadComplete.call(this.target, this.options.preload);
+                    options.onPreloadComplete.call(this.target,this.target).call(this.target, this.options.preload);
                 }
             }
         }
@@ -63,7 +58,7 @@ namespace at {
          */
         private onItemLoadError(event: RES.ResourceEvent): void {
             if (this.options.onItemLoadError) {
-                this.options.onItemLoadError.call(this.target, event);
+                this.options.onItemLoadError.call(this.target,this.target).call(this.target, event);
             }
         }
         /**
@@ -73,7 +68,7 @@ namespace at {
         private onGroupLoadError(event: RES.ResourceEvent): void {
             var options = this.options;
             if (options.onPreloadFaild) {
-                options.onPreloadFaild.call(this.target, event);
+                options.onPreloadFaild.call(this.target,this.target).call(this.target, event);
             }
             else {
                 this.onGroupLoadComplete(event);
@@ -86,7 +81,7 @@ namespace at {
         private onResourceProgress(event: RES.ResourceEvent): void {
             var options = this.options;
             if (options.onProgress && event.groupName == options.preload) {
-                options.onProgress.call(this.target, event.itemsLoaded, event.itemsTotal);
+                options.onProgress.call(this.target,this.target).call(this.target, event.itemsLoaded, event.itemsTotal);
             }
         }
     }
