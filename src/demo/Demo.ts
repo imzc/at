@@ -1,8 +1,14 @@
 module demo {
 
     @at.skin("resource/eui_skins/DemoSkin.exml")
+    @at.res<MyComponent>({ 
+        url:'resource/demo.res.json',
+        root:'resource',
+        preload: 'demo',
+        finish:it=>it.onResReady
+    })
     export class MyComponent extends eui.Component {
-        
+
         @at.partEvent<MyComponent>(egret.TouchEvent.TOUCH_BEGIN, it => it.onTouchBegin)
         @at.partEvent<MyComponent>(egret.TouchEvent.TOUCH_BEGIN, it => it.onTouchBegin)
         @at.partReady<MyComponent>(it => it.onReady)
@@ -19,6 +25,9 @@ module demo {
         }
         public onReady() {
             console.log("ready");
+        }
+        public onResReady() {
+            console.log("res ready");
         }
 
         public static Abc = 456;

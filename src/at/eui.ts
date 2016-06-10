@@ -4,7 +4,7 @@ namespace at {
         theme?: string;
         themeAdapter?: { new (): eui.IThemeAdapter };
         assetAdapter?: { new (): eui.IAssetAdapter };
-        onComplete?:(it:T)=> () => void;
+        finish?:(it:T)=> () => void;
 
     }
 
@@ -27,8 +27,8 @@ namespace at {
                 }
                 if (options.theme) {
                     var theme = new eui.Theme(options.theme, target.stage);
-                    if (options.onComplete) {
-                        var callback = options.onComplete.call(target,target);
+                    if (options.finish) {
+                        var callback = options.finish.call(target,target);
                         theme.addEventListener(egret.Event.COMPLETE, callback, target);
                     }
                 }

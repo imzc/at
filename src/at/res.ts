@@ -1,12 +1,12 @@
 namespace at {
     export interface IResOption<T> {
-        url: string;
-        root: string;
+        url?: string;
+        root?: string;
         preload: string;
-        onProgress?: (it:T)=> (loaded: number, total: number) => void;
-        onPreloadFaild?:  (it:T)=>(e: RES.ResourceEvent) => void;
-        onPreloadComplete?:  (it:T)=>(e: RES.ResourceEvent) => void;
-        onItemLoadError?:  (it:T)=>(e: RES.ResourceEvent) => void;
+        progress?: (it:T)=> (loaded: number, total: number) => void;
+        faild?:  (it:T)=>(e: RES.ResourceEvent) => void;
+        finish?:  (it:T)=>(e: RES.ResourceEvent) => void;
+        itemError?:  (it:T)=>(e: RES.ResourceEvent) => void;
     }
     export function res<T>(options: IResOption<T>) {
         return function (target: { new (...args): egret.DisplayObject }): any {
@@ -16,19 +16,22 @@ namespace at {
 
     class ResHelper<T> {
         constructor(private target: egret.DisplayObject, private options: IResOption<T>) {
-            target.once(egret.Event.ADDED_TO_STAGE, () => {
-                RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+            if(options.url){
+                RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.loadPreload, this);
                 RES.loadConfig(options.url, options.root);
-            }, target);
+            }
+            else {
+                this.loadPreload(null);
+            }
         }
 
         /**
      * 配置文件加载完成,开始预加载皮肤主题资源和preload资源组。
      * Loading of configuration file is complete, start to pre-load the theme configuration file and the preload resource group
      */
-        private onConfigComplete(event: RES.ResourceEvent): void {
+        private loadPreload(event: RES.ResourceEvent): void {
             var options = this.options;
-            RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+            RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.loadPreload, this);
             RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onGroupLoadComplete, this);
             RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onGroupLoadError, this);
             RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
@@ -47,8 +50,8 @@ namespace at {
                 RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
                 RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
 
-                if (options.onPreloadComplete) {
-                    options.onPreloadComplete.call(this.target,this.target).call(this.target, this.options.preload);
+                if (options.finish) {
+                    options.finish.call(this.target,this.target).call(this.target, this.options.preload);
                 }
             }
         }
@@ -57,8 +60,8 @@ namespace at {
          *  The resource group loading failed
          */
         private onItemLoadError(event: RES.ResourceEvent): void {
-            if (this.options.onItemLoadError) {
-                this.options.onItemLoadError.call(this.target,this.target).call(this.target, event);
+            if (this.options.itemError) {
+                this.options.itemError.call(this.target,this.target).call(this.target, event);
             }
         }
         /**
@@ -67,8 +70,8 @@ namespace at {
          */
         private onGroupLoadError(event: RES.ResourceEvent): void {
             var options = this.options;
-            if (options.onPreloadFaild) {
-                options.onPreloadFaild.call(this.target,this.target).call(this.target, event);
+            if (options.faild) {
+                options.faild.call(this.target,this.target).call(this.target, event);
             }
             else {
                 this.onGroupLoadComplete(event);
@@ -80,8 +83,8 @@ namespace at {
      */
         private onResourceProgress(event: RES.ResourceEvent): void {
             var options = this.options;
-            if (options.onProgress && event.groupName == options.preload) {
-                options.onProgress.call(this.target,this.target).call(this.target, event.itemsLoaded, event.itemsTotal);
+            if (options.progress && event.groupName == options.preload) {
+                options.progress.call(this.target,this.target).call(this.target, event.itemsLoaded, event.itemsTotal);
             }
         }
     }

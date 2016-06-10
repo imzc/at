@@ -5,7 +5,7 @@
 			"name": "preload"
 		},
 		{
-			"keys": "button_up_png,button_down_png,thumb_pb_png,track_pb_png",
+			"keys": "thumb_pb_png,track_pb_png,header_png,border_png",
 			"name": "demo"
 		}
 	],

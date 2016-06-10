@@ -31,12 +31,12 @@
     url: "resource/default.res.json",
     root: "resource/",
     preload: "preload",
-    onPreloadComplete: it => it.onResLoadComplete,
-    onProgress: it => it.onResProgress
+    finish: it => it.onResLoadComplete,
+    progress: it => it.onResProgress
 })
 @at.ui<Main>({
     theme: "resource/default.thm.json",
-    onComplete: it=>it.onThemeLoadComplete,
+    finish: it=>it.onThemeLoadComplete,
     assetAdapter: AssetAdapter,
     themeAdapter: ThemeAdapter
 })
